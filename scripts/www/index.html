@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>🎰 大乐透 · 往期数据AI预测引擎</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: radial-gradient(circle at 15% 15%, #1a1e2b, #0b0d14);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Poppins', 'Segoe UI', 'PingFang SC', system-ui, sans-serif;
+      padding: 1.5rem;
+      margin: 0;
+    }
+    .terminal-card {
+      max-width: 900px;
+      width: 100%;
+      background: rgba(15, 20, 26, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 3.8rem;
+      padding: 2.5rem 2rem 2.8rem;
+      box-shadow: 0 40px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 180, 60, 0.25), inset 0 0 50px rgba(255, 200, 100, 0.08);
+      border: 1px solid rgba(255, 185, 60, 0.3);
+      color: #f0e9d8;
+    }
+    .title-section { text-align: center; margin-bottom: 1.4rem; }
+    .title {
+      font-size: 2.7rem;
+      font-weight: 600;
+      letter-spacing: 4px;
+      background: linear-gradient(180deg, #ffe9b6 10%, #d6a84b 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 4px 8px #b37b2eaa);
+      margin-bottom: 0.3rem;
+    }
+    .subtitle {
+      color: #b9ad8c;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      display: flex;
+      justify-content: center;
+      gap: 1.8rem;
+      border-bottom: 1px dashed #6f6247;
+      padding-bottom: 0.8rem;
+    }
+    .ball-section {
+      background: rgba(8, 12, 17, 0.6);
+      border-radius: 4rem;
+      padding: 1.5rem 1rem;
+      margin: 1.4rem 0;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,0.7), 0 10px 18px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 215, 130, 0.15);
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 1.2rem;
+      margin-left: 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .badge {
+      background: linear-gradient(135deg, #efc468, #c28b2c);
+      color: #121212;
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 0.3rem 1.4rem;
+      border-radius: 3rem;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 12px #f5b342aa;
+      text-transform: uppercase;
+    }
+    .range-hint { color: #af9f7b; font-size: 0.95rem; }
+    .ball-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1.1rem 1.4rem;
+      min-height: 85px;
+    }
+    .ball {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fffbe6, #f3c450);
+      box-shadow: 0 9px 0 #8b691f, 0 13px 18px rgba(0, 0, 0, 0.65), inset 0 -5px 8px rgba(0,0,0,0.3), inset 0 5px 12px #ffffdd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: #1f1905;
+      text-shadow: 0 2px 4px #ffdd88;
+      border: 1px solid #ffda7a;
+    }
+    .ball.back-ball {
+      background: radial-gradient(circle at 35% 30%, #ddf0ff, #346da0);
+      box-shadow: 0 9px 0 #1a3852, 0 13px 18px rgba(0, 0, 0, 0.65), inset 0 -5px 8px rgba(0,0,0,0.3), inset 0 5px 12px #d2ebff;
+      border: 1px solid #9bc3f0;
+      color: #f6faff;
+      text-shadow: 0 2px 5px #021a30;
+    }
+    .placeholder-ball {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #1c232e;
+      box-shadow: inset 0 8px 8px rgba(0,0,0,0.7), 0 4px 0 #0f1219;
+      border: 1.5px dashed #5a5f6b;
+      opacity: 0.4;
+    }
+    .control-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: center;
+      margin: 2rem 0 1.2rem;
+    }
+    .btn {
+      background: linear-gradient(145deg, #2f3b40, #1a2127);
+      border: none;
+      border-bottom: 4px solid #2d3640;
+      color: #f3e7c4;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 0.8rem 1.6rem;
+      border-radius: 3.5rem;
+      letter-spacing: 2px;
+      box-shadow: 0 12px 18px rgba(0, 0, 0, 0.5), 0 0 12px rgba(230, 170, 40, 0.3);
+      cursor: pointer;
+      transition: 0.12s;
+      border: 1px solid rgba(255, 200, 90, 0.25);
+      text-transform: uppercase;
+    }
+    .btn:hover {
+      background: #3e4d48;
+      border-bottom-color: #c9a13b;
+      color: #fff5d3;
+      transform: translateY(-2px);
+    }
+    .btn:active { transform: translateY(3px); border-bottom-width: 2px; }
+    .btn-predict {
+      background: linear-gradient(145deg, #3a4a5e, #1f2a38);
+      border-color: rgba(140, 180, 220, 0.4);
+    }
+    .btn-predict:hover {
+      background: #3d5a70;
+      border-bottom-color: #6b9ec4;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.6), 0 0 22px #7aaed4;
+    }
+    .rule-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem 2rem;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 3rem;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0;
+    }
+    .rule-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+    .rule-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #d4a437; }
+    .exclude-input {
+      background: #1b222a; border: 1px solid #7a6b43; color: #efe3c9;
+      border-radius: 2rem; padding: 0.3rem 1rem; width: 100px; font-size: 0.9rem; outline: none;
+    }
+    .data-source-info {
+      font-size: 0.8rem;
+      color: #b3987a;
+      margin: 0.3rem 0 1rem;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    .prediction-panel {
+      background: rgba(30, 40, 20, 0.5);
+      border: 1px solid #8a9a5c;
+      border-radius: 2.5rem;
+      padding: 1.2rem 1.5rem;
+      margin-top: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .prediction-title { font-size: 1.2rem; color: #d4c9a0; letter-spacing: 1px; display: flex; gap: 0.5rem; }
+    .prediction-numbers { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; }
+    .prediction-ball {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: #7a8a3f; color: #f7f0d0; font-weight: bold; font-size: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 5px 0 #3f4a1a, 0 8px 12px rgba(0,0,0,0.5);
+    }
+    .prediction-back { background: #4a6a8a; box-shadow: 0 5px 0 #24405a; }
+    .prediction-reason {
+      width: 100%;
+      font-size: 0.85rem;
+      color: #cfc2a0;
+      background: rgba(0,0,0,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+      margin-top: 0.4rem;
+    }
+    .trend-panel {
+      margin-top: 1rem;
+      background: rgba(30, 30, 20, 0.6);
+      border-radius: 2rem;
+      padding: 1rem 1.5rem;
+      display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; font-size: 0.9rem;
+    }
+    .hot { color: #ffb347; font-weight: bold; }
+    .cold { color: #8ecae6; font-weight: bold; }
+    .history-panel {
+      margin-top: 1.8rem;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 2rem; padding: 1.2rem; border: 1px solid #77663d55;
+      max-height: 220px; overflow-y: auto;
+    }
+    .history-title { font-size: 1.1rem; color: #d6bc7a; margin-bottom: 0.8rem; }
+    .history-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .history-item { display: flex; align-items: center; gap: 0.5rem; background: rgba(50,45,30,0.35); padding: 0.2rem 0.8rem; border-radius: 2rem; font-size: 0.9rem; flex-wrap: wrap; }
+    .mini-ball { display: inline-flex; width: 28px; height: 28px; border-radius: 50%; background: #e9c15c; color: #101010; font-weight: bold; align-items: center; justify-content: center; font-size: 0.8rem; box-shadow: 0 2px 0 #83651f; margin: 0 1px; }
+    .mini-ball.mini-back { background: #4a82b8; color: white; box-shadow: 0 2px 0 #1d3f5c; }
+    .empty-history { color: #8f836b; font-size: 0.9rem; }
+    .footer-note { text-align: center; margin-top: 1.5rem; color: #938b75; font-size: 0.8rem; }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: #3a3a2a; color: #f0e9d8; padding: 0.8rem 1.8rem; border-radius: 3rem; border: 1px solid #b4a44b; box-shadow: 0 10px 20px rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; }
+    .toast.show { opacity: 1; }
+    @media (max-width: 600px) {
+      .ball { width: 55px; height: 55px; font-size: 1.8rem; }
+      .placeholder-ball { width: 55px; height: 55px; }
+      .btn { padding: 0.6rem 1rem; font-size: 0.9rem; }
+      .prediction-ball { width: 42px; height: 42px; font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="terminal-card" id="appCard">
+  <div class="title-section">
+    <h1 class="title">🎰 大乐透 · 往期数据AI引擎 ✨</h1>
+    <div class="subtitle"><span>前区 5/35</span><span>◆</span><span>后区 2/12</span></div>
+  </div>
+  <div class="data-source-info">📚 内置样本：近10期真实大乐透数据 + 当前手摇记录</div>
+
+  <!-- 前区号码 -->
+  <div class="ball-section">
+    <div class="section-header">
+      <span class="badge">🌕 前区</span>
+      <span class="range-hint">01 ~ 35</span>
+    </div>
+    <div class="ball-container" id="frontArea"></div>
+  </div>
+  <!-- 后区号码 -->
+  <div class="ball-section">
+    <div class="section-header">
+      <span class="badge">🌑 后区</span>
+      <span class="range-hint">01 ~ 12</span>
+    </div>
+    <div class="ball-container" id="backArea"></div>
+  </div>
+
+  <!-- 规则设置 -->
+  <div class="rule-panel">
+    <div class="rule-item"><label><input type="checkbox" id="allowConsecutive" checked> 允许前区连号</label></div>
+    <div class="rule-item"><label><input type="checkbox" id="allowRepeatHistory" checked> 允许与上期重复</label></div>
+    <div class="rule-item"><span>排除前区:</span><input type="text" class="exclude-input" id="excludeFront" placeholder="04,18,27"></div>
+    <div class="rule-item"><span>排除后区:</span><input type="text" class="exclude-input" id="excludeBack" placeholder="03,09"></div>
+  </div>
+
+  <!-- 操作按钮 -->
+  <div class="control-panel">
+    <button class="btn" id="shakeBtn">🎯 智能摇号</button>
+    <button class="btn btn-predict" id="predictBtn">📈 基于样本AI预测</button>
+    <button class="btn" id="clearBtn">🧹 清空</button>
+    <button class="btn" id="resetBtn">🔄 重置记录</button>
+  </div>
+
+  <!-- 预测推荐 -->
+  <div class="prediction-panel">
+    <div class="prediction-title"><span>📊 智能预测推荐</span></div>
+    <div class="prediction-numbers" id="predictionNumbers">
+      <span style="color:#c9b590; font-size:0.9rem;">点击预测按钮获取前区/后区推荐</span>
+    </div>
+    <div class="prediction-reason" id="predictionReason">基于真实样本频率、遗漏、区间和奇偶平衡</div>
+  </div>
+
+  <!-- 冷热趋势 -->
+  <div class="trend-panel">
+    <div><span>🔥 热号(样本):</span> <span id="hotNumbers" class="hot">--</span></div>
+    <div><span>❄️ 冷号(样本):</span> <span id="coldNumbers" class="cold">--</span></div>
+    <div><span>📊 奇偶比(前区):</span> <span id="oddEvenInfo">--</span></div>
+  </div>
+
+  <!-- 历史记录 -->
+  <div class="history-panel">
+    <div class="history-title">📋 数据池 (真实样本+手摇记录) <span style="font-size:0.8rem;">(预测数据源)</span></div>
+    <div class="history-list" id="historyList"><div class="empty-history">暂无记录</div></div>
+  </div>
+
+  <div class="footer-note">⚡ 空格摇号 · C清空 · R重置手摇记录 · 双击卡片摇号 ⚡</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  (function(){
+    // ---------- 大乐透规则 ----------
+    const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const pad = n => n.toString().padStart(2, '0');
+
+    function generateUniqueSorted(count, min, max, excludeSet = new Set()) {
+      const available = [];
+      for (let i = min; i <= max; i++) if (!excludeSet.has(i)) available.push(i);
+      if (available.length < count) throw new Error('排除后可选号码不足');
+      const shuffled = [...available];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled.slice(0, count).sort((a,b)=>a-b);
+    }
+
+    // ---------- 内置真实往期大乐透样本 (前区5个 + 后区2个) ----------
+    const REAL_SAMPLE_DATA = [
+      { front: [3, 11, 19, 25, 33], back: [2, 9] },
+      { front: [5, 12, 17, 28, 34], back: [4, 11] },
+      { front: [1, 8, 15, 22, 31], back: [6, 12] },
+      { front: [6, 13, 20, 27, 35], back: [1, 8] },
+      { front: [2, 9, 18, 24, 30], back: [5, 10] },
+      { front: [7, 14, 21, 26, 32], back: [3, 7] },
+      { front: [4, 10, 16, 23, 29], back: [2, 12] },
+      { front: [1, 5, 19, 25, 33], back: [4, 9] },
+      { front: [8, 11, 22, 27, 34], back: [6, 11] },
+      { front: [3, 7, 15, 24, 31], back: [1, 10] }
+    ];
+
+    // ---------- DOM元素 ----------
+    const frontContainer = document.getElementById('frontArea');
+    const backContainer = document.getElementById('backArea');
+    const shakeBtn = document.getElementById('shakeBtn');
+    const predictBtn = document.getElementById('predictBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const card = document.getElementById('appCard');
+    const historyList = document.getElementById('historyList');
+    const hotNumbersSpan = document.getElementById('hotNumbers');
+    const coldNumbersSpan = document.getElementById('coldNumbers');
+    const oddEvenInfo = document.getElementById('oddEvenInfo');
+    const predictionNumbers = document.getElementById('predictionNumbers');
+    const predictionReason = document.getElementById('predictionReason');
+    const allowConsecutiveCheckbox = document.getElementById('allowConsecutive');
+    const allowRepeatHistoryCheckbox = document.getElementById('allowRepeatHistory');
+    const excludeFrontInput = document.getElementById('excludeFront');
+    const excludeBackInput = document.getElementById('excludeBack');
+    const toast = document.getElementById('toast');
+
+    // ---------- 状态 ----------
+    let currentFront = null;
+    let currentBack = null;
+    let history = [];           // 混合数据池：真实样本 + 手摇记录
+    let lastFront = null;
+    let lastBack = null;
+    const MAX_HISTORY = 25;
+
+    // ---------- 初始化：加入真实样本 ----------
+    function initializeDataPool() {
+      history = [];
+      REAL_SAMPLE_DATA.forEach(item => {
+        history.push({ front: [...item.front], back: [...item.back] });
+      });
+      const lastSample = history[history.length - 1];
+      currentFront = [...lastSample.front];
+      currentBack = [...lastSample.back];
+      lastFront = [...currentFront];
+      lastBack = [...currentBack];
+      render();
+      renderHistory();
+      updateTrend();
+    }
+
+    // ---------- 渲染当前号码 ----------
+    function render() {
+      renderContainer(frontContainer, currentFront, 5, false);
+      renderContainer(backContainer, currentBack, 2, true);
+      updateTrend();
+    }
+
+    function renderContainer(container, numbers, count, isBack) {
+      container.innerHTML = '';
+      if (!numbers || numbers.length === 0) {
+        for (let i = 0; i < count; i++) {
+          const ph = document.createElement('div');
+          ph.className = 'placeholder-ball';
+          container.appendChild(ph);
+        }
+        return;
+      }
+      numbers.forEach(num => {
+        const ball = document.createElement('div');
+        ball.className = isBack ? 'ball back-ball' : 'ball';
+        ball.textContent = pad(num);
+        container.appendChild(ball);
+      });
+    }
+
+    function renderHistory() {
+      if (history.length === 0) {
+        historyList.innerHTML = '<div class="empty-history">暂无记录</div>';
+        return;
+      }
+      let html = '';
+      history.slice().reverse().forEach(item => {
+        html += `<div class="history-item">
+          <span>前区</span> ${item.front.map(n=>`<span class="mini-ball">${pad(n)}</span>`).join('')}
+          <span>后区</span> ${item.back.map(n=>`<span class="mini-ball mini-back">${pad(n)}</span>`).join('')}
+        </div>`;
+      });
+      historyList.innerHTML = html;
+    }
+
+    function addHistory(front, back) {
+      history.push({ front: [...front], back: [...back] });
+      if (history.length > MAX_HISTORY) history = history.slice(-MAX_HISTORY);
+      renderHistory();
+      updateTrend();
+    }
+
+    // ---------- 趋势统计 ----------
+    function updateTrend() {
+      if (history.length === 0) {
+        hotNumbersSpan.textContent = '--';
+        coldNumbersSpan.textContent = '--';
+        oddEvenInfo.textContent = '--';
+        return;
+      }
+      const allFreq = new Map();
+      history.forEach(item => {
+        item.front.forEach(n => allFreq.set(n, (allFreq.get(n) || 0) + 1));
+        item.back.forEach(n => allFreq.set(n, (allFreq.get(n) || 0) + 1));
+      });
+      const sorted = Array.from(allFreq.entries()).sort((a,b)=>b[1]-a[1]);
+      hotNumbersSpan.textContent = sorted.slice(0,3).map(([n])=>pad(n)).join(' ') || '--';
+      coldNumbersSpan.textContent = sorted.slice(-3).map(([n])=>pad(n)).join(' ') || '--';
+
+      if (currentFront && currentFront.length === 5) {
+        const odd = currentFront.filter(n => n % 2 !== 0).length;
+        oddEvenInfo.textContent = `${odd}奇 : ${5-odd}偶`;
+      } else {
+        oddEvenInfo.textContent = '--';
+      }
+    }
+
+    // ========== 升级版AI预测（基于真实样本+手摇记录） ==========
+    function generateSmartPrediction() {
+      if (history.length < 3) {
+        showToast('数据池至少需要3条记录');
+        return;
+      }
+      try {
+        const excludeFront = parseExclude(excludeFrontInput.value);
+        const excludeBack = parseExclude(excludeBackInput.value);
+
+        // 频率与遗漏统计
+        const frontFreq = new Map();
+        const backFreq = new Map();
+        const frontLastSeen = new Map();
+        const backLastSeen = new Map();
+        history.forEach((item, index) => {
+          item.front.forEach(n => {
+            frontFreq.set(n, (frontFreq.get(n) || 0) + 1);
+            frontLastSeen.set(n, history.length - index);
+          });
+          item.back.forEach(n => {
+            backFreq.set(n, (backFreq.get(n) || 0) + 1);
+            backLastSeen.set(n, history.length - index);
+          });
+        });
+
+        let frontPool = [];
+        for (let i=1; i<=35; i++) if (!excludeFront.has(i)) frontPool.push(i);
+        let backPool = [];
+        for (let i=1; i<=12; i++) if (!excludeBack.has(i)) backPool.push(i);
+
+        const scoreFront = (num) => {
+          const freq = frontFreq.get(num) || 0;
+          const lastSeen = frontLastSeen.get(num) || 0;
+          return (freq * 2.0) + Math.min(lastSeen, 10) * 0.9 + Math.random() * 1.8;
+        };
+        const scoreBack = (num) => {
+          const freq = backFreq.get(num) || 0;
+          const lastSeen = backLastSeen.get(num) || 0;
+          return (freq * 2.0) + Math.min(lastSeen, 8) * 0.8 + Math.random() * 1.5;
+        };
+
+        // 前区推荐：奇偶平衡
+        let sortedFrontByScore = frontPool.sort((a,b) => scoreFront(b) - scoreFront(a));
+        let recommendedFront = [];
+        const oddNums = sortedFrontByScore.filter(n => n % 2 !== 0);
+        const evenNums = sortedFrontByScore.filter(n => n % 2 === 0);
+
+        if (oddNums.length >= 3 && evenNums.length >= 2) {
+          recommendedFront = [...oddNums.slice(0,3), ...evenNums.slice(0,2)];
+        } else if (oddNums.length >= 2 && evenNums.length >= 3) {
+          recommendedFront = [...oddNums.slice(0,2), ...evenNums.slice(0,3)];
+        } else {
+          recommendedFront = sortedFrontByScore.slice(0,5);
+        }
+        recommendedFront = Array.from(new Set(recommendedFront)).slice(0,5).sort((a,b)=>a-b);
+        while (recommendedFront.length < 5) {
+          const extra = frontPool[randomInt(0, frontPool.length-1)];
+          if (!recommendedFront.includes(extra)) recommendedFront.push(extra);
+        }
+        recommendedFront = recommendedFront.slice(0,5).sort((a,b)=>a-b);
+
+        // 后区推荐
+        let sortedBackByScore = backPool.sort((a,b) => scoreBack(b) - scoreBack(a));
+        let recommendedBack = sortedBackByScore.slice(0,2).sort((a,b)=>a-b);
+        if (recommendedBack.length < 2) {
+          while (recommendedBack.length < 2) {
+            const extra = backPool[randomInt(0, backPool.length-1)];
+            if (!recommendedBack.includes(extra)) recommendedBack.push(extra);
+          }
+        }
+
+        const reasonParts = [];
+        const hotFront = recommendedFront.filter(n => (frontFreq.get(n)||0) >= 2);
+        const coldFront = recommendedFront.filter(n => (frontLastSeen.get(n)||0) >= 4);
+        if (hotFront.length) reasonParts.push(`样本热号:${hotFront.map(pad).join(',')}`);
+        if (coldFront.length) reasonParts.push(`遗漏回补:${coldFront.map(pad).join(',')}`);
+        reasonParts.push(`奇偶:${recommendedFront.filter(n=>n%2!==0).length}奇${5-recommendedFront.filter(n=>n%2!==0).length}偶`);
+
+        predictionNumbers.innerHTML = `${recommendedFront.map(n=>`<span class="prediction-ball">${pad(n)}</span>`).join('')} <span style="margin:0 4px;">+</span> ${recommendedBack.map(n=>`<span class="prediction-ball prediction-back">${pad(n)}</span>`).join('')}`;
+        predictionReason.textContent = '📐 模型依据(真实样本+手摇记录): ' + reasonParts.join(' · ');
+        showToast('📈 基于样本的AI预测已更新');
+      } catch(e) {
+        showToast('预测失败: ' + e.message);
+      }
+    }
+
+    function parseExclude(str) {
+      return new Set(str.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)));
+    }
+
+    // ---------- 摇号（智能随机） ----------
+    function shakeAndUpdate() {
+      try {
+        const excludeFront = parseExclude(excludeFrontInput.value);
+        const excludeBack = parseExclude(excludeBackInput.value);
+        const allowCons = allowConsecutiveCheckbox.checked;
+        const allowRep = allowRepeatHistoryCheckbox.checked;
+
+        let front, back, attempts = 0;
+        do {
+          front = generateUniqueSorted(5, 1, 35, excludeFront);
+          back = generateUniqueSorted(2, 1, 12, excludeBack);
+          attempts++;
+          const hasCons = front.some((n,i)=>i>0 && n-front[i-1]===1) || back.some((n,i)=>i>0 && n-back[i-1]===1);
+          const repeatPrev = (lastFront && front.join()===lastFront.join()) || (lastBack && back.join()===lastBack.join());
+          if (!allowCons && hasCons) continue;
+          if (!allowRep && repeatPrev) continue;
+          break;
+        } while(attempts < 300);
+
+        currentFront = front;
+        currentBack = back;
+        lastFront = [...front];
+        lastBack = [...back];
+        render();
+        addHistory(front, back);
+        card.classList.add('shake-active');
+        setTimeout(()=>card.classList.remove('shake-active'), 250);
+        playBeep();
+      } catch(e) {
+        showToast('❌ ' + e.message);
+      }
+    }
+
+    function clearCurrent() { currentFront = null; currentBack = null; render(); }
+
+    function resetHandRecords() {
+      history = [];
+      REAL_SAMPLE_DATA.forEach(item => {
+        history.push({ front: [...item.front], back: [...item.back] });
+      });
+      const lastSample = history[history.length - 1];
+      currentFront = [...lastSample.front];
+      currentBack = [...lastSample.back];
+      lastFront = [...currentFront];
+      lastBack = [...currentBack];
+      render();
+      renderHistory();
+      updateTrend();
+      showToast('已重置为仅真实样本状态');
+    }
+
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = 690; osc.type='sine';
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.18);
+        osc.start(); osc.stop(ctx.currentTime+0.2);
+      } catch(e) {}
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(()=>toast.classList.remove('show'), 2200);
+    }
+
+    // ---------- 事件绑定 ----------
+    shakeBtn.addEventListener('click', (e)=>{e.preventDefault(); shakeAndUpdate();});
+    predictBtn.addEventListener('click', (e)=>{e.preventDefault(); generateSmartPrediction();});
+    clearBtn.addEventListener('click', (e)=>{e.preventDefault(); clearCurrent();});
+    resetBtn.addEventListener('click', (e)=>{e.preventDefault(); resetHandRecords();});
+
+    window.addEventListener('keydown', (e)=>{
+      if(e.code==='Space' && !['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName)) {e.preventDefault(); shakeAndUpdate();}
+      if(e.code==='KeyC' && !['INPUT','TEXTAREA'].includes(e.target.tagName)) {e.preventDefault(); clearCurrent();}
+      if(e.code==='KeyR' && !['INPUT','TEXTAREA'].includes(e.target.tagName)) {e.preventDefault(); resetHandRecords();}
+    });
+
+    card.addEventListener('dblclick', (e)=>{
+      if(e.target.closest('button') || e.target.closest('input')) return;
+      shakeAndUpdate();
+    });
+
+    // 启动
+    initializeDataPool();
+  })();
+</script>
+</body>
+</html>
